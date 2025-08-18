@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -10,19 +11,20 @@ interface RootCauseStepProps {
   timeElapsed: number;
 }
 
-const ROOT_CAUSE_CATEGORIES = [
-  'Human Error',
-  'System Malfunction',
-  'Process Failure',
-  'Training Deficiency',
-  'Equipment Failure',
-  'Policy Violation',
-  'External Factor',
-  'Fraudulent Activity'
-];
-
 export function RootCauseStep({ data, onUpdate }: RootCauseStepProps) {
-  const updateRootCause = (field: keyof InvestigationData['rootCause'], value: any) => {
+  const rootCausesLeft = [
+    { id: 'cashier', label: 'Cashier error' },
+    { id: 'sku', label: 'Wrong SKU scanned' },
+    { id: 'quantity', label: 'Quantity key error' }
+  ];
+
+  const rootCausesRight = [
+    { id: 'override', label: 'Price override' },
+    { id: 'return', label: 'Return processing' },
+    { id: 'selfCheckout', label: 'Self-checkout issue' }
+  ];
+
+  const updateRootCause = (field: string, value: any) => {
     onUpdate({
       rootCause: {
         ...data.rootCause,
@@ -31,83 +33,103 @@ export function RootCauseStep({ data, onUpdate }: RootCauseStepProps) {
     });
   };
 
+  const handleCauseChange = (causeId: string, checked: boolean) => {
+    // For this demo, we'll store the selected causes in the details field
+    const currentDetails = data.rootCause.details || '';
+    const causeLabel = [...rootCausesLeft, ...rootCausesRight].find(c => c.id === causeId)?.label || '';
+    
+    if (checked) {
+      const newDetails = currentDetails ? `${currentDetails}, ${causeLabel}` : causeLabel;
+      updateRootCause('details', newDetails);
+    } else {
+      const newDetails = currentDetails.replace(new RegExp(`, ?${causeLabel}|${causeLabel}, ?`, 'g'), '');
+      updateRootCause('details', newDetails);
+    }
+  };
+
   return (
-    <div className="p-6">
+    <div className="card-glass p-8">
       <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-2">Root Cause Analysis</h3>
-        <p className="text-sm text-muted-foreground">
-          Identify the underlying cause of the incident. Target completion: 2 minutes.
-        </p>
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">⚡ Step 3: Quick Root Cause Analysis</h2>
+        <p className="text-gray-600">Target: 2 minutes - Determine underlying causes and factors</p>
       </div>
 
-      <div className="space-y-6">
-        <div className="space-y-2">
-          <Label htmlFor="category">Primary Cause Category</Label>
-          <Select 
-            value={data.rootCause.category} 
-            onValueChange={(value) => updateRootCause('category', value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select root cause category" />
-            </SelectTrigger>
-            <SelectContent>
-              {ROOT_CAUSE_CATEGORIES.map((category) => (
-                <SelectItem key={category} value={category}>
-                  {category}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="details">Detailed Analysis</Label>
-          <Textarea
-            id="details"
-            placeholder="Describe the specific circumstances that led to this incident..."
-            value={data.rootCause.details}
-            onChange={(e) => updateRootCause('details', e.target.value)}
-            rows={4}
-          />
-        </div>
-
-        <div className="space-y-4">
-          <Label>Contributing Factors</Label>
-          
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
+          <Label className="text-lg font-medium text-gray-700 mb-4 block">
+            Most Likely Causes:
+          </Label>
           <div className="space-y-3">
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="employeeInvolved"
-                checked={data.rootCause.employeeInvolved}
-                onCheckedChange={(checked) => updateRootCause('employeeInvolved', checked)}
-              />
-              <Label htmlFor="employeeInvolved" className="text-sm">
-                Employee action or inaction contributed to the issue
-              </Label>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="registerIssue"
-                checked={data.rootCause.registerIssue}
-                onCheckedChange={(checked) => updateRootCause('registerIssue', checked)}
-              />
-              <Label htmlFor="registerIssue" className="text-sm">
-                Register or system malfunction was a factor
-              </Label>
-            </div>
+            {rootCausesLeft.map((cause) => (
+              <div key={cause.id} className="checkbox-item">
+                <Checkbox
+                  id={cause.id}
+                  onCheckedChange={(checked) => handleCauseChange(cause.id, checked as boolean)}
+                  className="mr-3"
+                />
+                <Label htmlFor={cause.id} className="cursor-pointer text-sm">
+                  {cause.label}
+                </Label>
+              </div>
+            ))}
+          </div>
+          
+          <div className="mt-6 space-y-3">
+            {rootCausesRight.map((cause) => (
+              <div key={cause.id} className="checkbox-item">
+                <Checkbox
+                  id={cause.id}
+                  onCheckedChange={(checked) => handleCauseChange(cause.id, checked as boolean)}
+                  className="mr-3"
+                />
+                <Label htmlFor={cause.id} className="cursor-pointer text-sm">
+                  {cause.label}
+                </Label>
+              </div>
+            ))}
           </div>
         </div>
 
-        <div className="bg-muted/50 p-4 rounded-lg">
-          <h4 className="font-medium mb-2">Quick Analysis Checklist</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-            <div>• Was proper procedure followed?</div>
-            <div>• Were systems functioning correctly?</div>
-            <div>• Was adequate training provided?</div>
-            <div>• Were there environmental factors?</div>
-            <div>• Was supervision adequate?</div>
-            <div>• Were policies clearly communicated?</div>
+        <div className="space-y-6">
+          <div>
+            <Label htmlFor="employee" className="text-sm font-medium text-gray-700">Employee Involved (if known)</Label>
+            <input
+              id="employee"
+              type="text"
+              placeholder="Employee ID or Name"
+              className="w-full mt-1 p-3 border-2 border-gray-200 focus:border-blue-500 rounded-lg"
+              onChange={(e) => updateRootCause('employeeInvolved', e.target.value !== '')}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="register" className="text-sm font-medium text-gray-700">Register/Terminal</Label>
+            <input
+              id="register"
+              type="text"
+              placeholder="e.g., SCO-4, REG-12"
+              className="w-full mt-1 p-3 border-2 border-gray-200 focus:border-blue-500 rounded-lg"
+              onChange={(e) => updateRootCause('registerIssue', e.target.value !== '')}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="category" className="text-sm font-medium text-gray-700">Primary Cause Category</Label>
+            <Select onValueChange={(value) => updateRootCause('category', value)}>
+              <SelectTrigger className="mt-1 border-2 border-gray-200 focus:border-blue-500 rounded-lg p-3">
+                <SelectValue placeholder="Select root cause category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Human Error">Human Error</SelectItem>
+                <SelectItem value="System Malfunction">System Malfunction</SelectItem>
+                <SelectItem value="Process Failure">Process Failure</SelectItem>
+                <SelectItem value="Training Deficiency">Training Deficiency</SelectItem>
+                <SelectItem value="Equipment Failure">Equipment Failure</SelectItem>
+                <SelectItem value="Policy Violation">Policy Violation</SelectItem>
+                <SelectItem value="External Factor">External Factor</SelectItem>
+                <SelectItem value="Fraudulent Activity">Fraudulent Activity</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>

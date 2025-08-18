@@ -137,9 +137,104 @@ All colors MUST be HSL.
 @layer base {
   * {
     @apply border-border;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    padding: 20px;
+  }
+}
+
+@layer components {
+  .card-glass {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  
+  .timer-pulse {
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.8; }
+    100% { opacity: 1; }
+  }
+  
+  .gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+  
+  .quick-action-btn {
+    @apply p-3 bg-muted/50 border-2 border-transparent rounded-lg cursor-pointer transition-all duration-300 text-center text-sm font-medium;
+  }
+  
+  .quick-action-btn:hover {
+    @apply bg-muted border-primary;
+  }
+  
+  .quick-action-btn.selected {
+    @apply bg-primary text-primary-foreground;
+  }
+  
+  .checkbox-grid {
+    @apply grid grid-cols-2 gap-3;
+  }
+  
+  .checkbox-item {
+    @apply flex items-center p-3 bg-muted/50 rounded-lg cursor-pointer transition-all duration-300;
+  }
+  
+  .checkbox-item:hover {
+    @apply bg-muted;
+  }
+  
+  .progress-bar {
+    @apply w-full h-8 bg-muted rounded-full overflow-hidden;
+  }
+  
+  .progress-fill {
+    @apply h-full flex items-center justify-center text-white font-bold transition-all duration-500;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+  }
+  
+  .result-item {
+    @apply bg-muted/50 p-4 rounded-lg mb-3 border-l-4;
+  }
+  
+  .result-item.high-risk {
+    @apply border-l-red-500 bg-red-50;
+  }
+  
+  .result-item.medium-risk {
+    @apply border-l-yellow-500 bg-yellow-50;
+  }
+  
+  .result-item.low-risk {
+    @apply border-l-green-500 bg-green-50;
+  }
+  
+  .risk-score {
+    @apply inline-block px-3 py-1 rounded-full font-bold text-xs ml-3;
+  }
+  
+  .high-risk .risk-score {
+    @apply bg-red-500 text-white;
+  }
+  
+  .medium-risk .risk-score {
+    @apply bg-yellow-500 text-white;
+  }
+  
+  .low-risk .risk-score {
+    @apply bg-green-500 text-white;
   }
 }

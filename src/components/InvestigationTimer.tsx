@@ -1,34 +1,29 @@
 import { useState, useEffect } from 'react';
-import { Clock, PlayCircle, StopCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface InvestigationTimerProps {
-  onTimeUpdate: (timeInSeconds: number) => void;
+  onTimeUpdate: (time: number) => void;
   isActive: boolean;
   onStart: () => void;
   onStop: () => void;
 }
 
 export function InvestigationTimer({ onTimeUpdate, isActive, onStart, onStop }: InvestigationTimerProps) {
-  const [timeElapsed, setTimeElapsed] = useState(0);
+  const [time, setTime] = useState(0);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-    
+    let interval: NodeJS.Timeout;
     if (isActive) {
       interval = setInterval(() => {
-        setTimeElapsed(time => {
+        setTime((time) => {
           const newTime = time + 1;
           onTimeUpdate(newTime);
           return newTime;
         });
       }, 1000);
     }
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
+    return () => clearInterval(interval);
   }, [isActive, onTimeUpdate]);
 
   const formatTime = (seconds: number) => {
@@ -37,88 +32,60 @@ export function InvestigationTimer({ onTimeUpdate, isActive, onStart, onStop }: 
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const getTimerColor = () => {
-    if (timeElapsed <= 240) return 'timer-green';
-    if (timeElapsed <= 300) return 'timer-yellow';
-    return 'timer-red';
+  const getTimerStatus = () => {
+    if (time <= 240) return 'active'; // 0-4 minutes: green
+    if (time <= 300) return 'warning'; // 4-5 minutes: yellow
+    return 'expired'; // 5+ minutes: red
   };
 
-  const getTimerBgClass = () => {
-    if (timeElapsed <= 240) return 'bg-gradient-timer-green';
-    if (timeElapsed <= 300) return 'bg-gradient-timer-yellow';
-    return 'bg-gradient-timer-red';
-  };
-
-  const getProgressPercentage = () => {
-    return Math.min((timeElapsed / 300) * 100, 100);
+  const getTimerClasses = () => {
+    const status = getTimerStatus();
+    return cn(
+      "inline-block px-6 py-3 rounded-xl font-bold text-lg transition-all duration-300",
+      status === 'active' && "bg-green-500 text-white timer-pulse",
+      status === 'warning' && "bg-yellow-500 text-white timer-pulse",
+      status === 'expired' && "bg-red-500 text-white timer-pulse",
+      !isActive && "bg-gray-100 text-gray-700"
+    );
   };
 
   return (
-    <div className="bg-card border rounded-lg p-6 shadow-medium">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Clock className="h-5 w-5 text-muted-foreground" />
-          <h2 className="text-lg font-semibold">Investigation Timer</h2>
+    <div className="card-glass p-8">
+      <div className="text-center">
+        <div className={getTimerClasses()}>
+          ⏱️ {isActive ? formatTime(time) : 'Timer: Ready'}
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="mt-6">
           {!isActive ? (
-            <Button onClick={onStart} variant="default" size="sm">
-              <PlayCircle className="h-4 w-4 mr-1" />
-              Start
+            <Button 
+              onClick={onStart}
+              className="gradient-primary text-white font-semibold px-8 py-3 text-lg rounded-xl hover:scale-105 transition-transform"
+            >
+              Start Investigation
             </Button>
           ) : (
-            <Button onClick={onStop} variant="destructive" size="sm">
-              <StopCircle className="h-4 w-4 mr-1" />
-              Stop
+            <Button 
+              onClick={onStop}
+              variant="secondary"
+              className="px-8 py-3 text-lg rounded-xl"
+            >
+              Stop Timer
             </Button>
           )}
         </div>
-      </div>
 
-      <div className="space-y-4">
-        <div className={cn(
-          "text-center p-6 rounded-lg transition-all duration-300 shadow-timer",
-          getTimerBgClass()
-        )}>
-          <div className="text-4xl font-bold text-white mb-2">
-            {formatTime(timeElapsed)}
+        {isActive && (
+          <div className="mt-6">
+            <div className="text-sm text-gray-600 mb-2">Investigation Status</div>
+            <div className={cn(
+              "text-lg font-semibold",
+              time <= 300 ? "text-green-600" : "text-red-600"
+            )}>
+              {time <= 300 ? "✅ Within 5-minute target" : "⚠️ Exceeded time limit"}
+            </div>
           </div>
-          <div className="text-white/80 text-sm">
-            Target: 5:00 minutes
-          </div>
-        </div>
-
-        <div className="w-full bg-neutral-200 rounded-full h-3 overflow-hidden">
-          <div 
-            className={cn(
-              "h-full transition-all duration-300",
-              getTimerBgClass()
-            )}
-            style={{ width: `${getProgressPercentage()}%` }}
-          />
-        </div>
-
-        <div className="grid grid-cols-3 gap-2 text-sm">
-          <div className={cn(
-            "text-center p-2 rounded",
-            timeElapsed <= 240 ? "bg-timer-green/10 text-timer-green font-medium" : "text-muted-foreground"
-          )}>
-            0-4:00 min
-          </div>
-          <div className={cn(
-            "text-center p-2 rounded",
-            timeElapsed > 240 && timeElapsed <= 300 ? "bg-timer-yellow/10 text-timer-yellow font-medium" : "text-muted-foreground"
-          )}>
-            4:00-5:00 min
-          </div>
-          <div className={cn(
-            "text-center p-2 rounded",
-            timeElapsed > 300 ? "bg-timer-red/10 text-timer-red font-medium" : "text-muted-foreground"
-          )}>
-            5:00+ min
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

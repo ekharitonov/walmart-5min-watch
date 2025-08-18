@@ -1,5 +1,6 @@
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { useState } from 'react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import { InvestigationData } from '../InvestigationWizard';
 import { cn } from '@/lib/utils';
 
@@ -9,123 +10,90 @@ interface PatternRecognitionStepProps {
   timeElapsed: number;
 }
 
-const COMMON_PATTERNS = [
-  {
-    id: 'recurring-employee',
-    title: 'Recurring Employee Issues',
-    description: 'Same employee involved in multiple incidents'
-  },
-  {
-    id: 'time-pattern',
-    title: 'Time Pattern',
-    description: 'Issues occurring at specific times (shift changes, breaks)'
-  },
-  {
-    id: 'register-specific',
-    title: 'Register-Specific',
-    description: 'Problems isolated to particular registers'
-  },
-  {
-    id: 'amount-pattern',
-    title: 'Amount Patterns',
-    description: 'Consistent dollar amounts or percentage discrepancies'
-  },
-  {
-    id: 'department-trend',
-    title: 'Department Trends',
-    description: 'Higher frequency in specific departments'
-  },
-  {
-    id: 'transaction-type',
-    title: 'Transaction Type Issues',
-    description: 'Problems with specific transaction types (returns, voids)'
-  },
-  {
-    id: 'system-related',
-    title: 'System-Related',
-    description: 'Technology or software-related patterns'
-  },
-  {
-    id: 'training-gap',
-    title: 'Training Gaps',
-    description: 'Issues indicating insufficient training'
-  }
-];
-
 export function PatternRecognitionStep({ data, onUpdate }: PatternRecognitionStepProps) {
-  const togglePattern = (patternId: string) => {
+  const [selectedQuickIssue, setSelectedQuickIssue] = useState<string>('');
+
+  const commonPatterns = [
+    { id: 'endOfShift', label: 'End of shift' },
+    { id: 'weekend', label: 'Weekend/Holiday' },
+    { id: 'highTraffic', label: 'High traffic period' },
+    { id: 'newEmployee', label: 'New employee' },
+    { id: 'systemUpdate', label: 'System update/downtime' },
+    { id: 'vendorDelivery', label: 'Vendor delivery day' },
+    { id: 'promotion', label: 'Promotion/Sale active' },
+    { id: 'inventoryCount', label: 'Inventory count day' }
+  ];
+
+  const quickIssues = [
+    { id: 'scanning', label: 'Scanning Issue' },
+    { id: 'training', label: 'Training Gap' },
+    { id: 'system', label: 'System Error' },
+    { id: 'theft', label: 'Possible Theft' }
+  ];
+
+  const handlePatternChange = (patternId: string, checked: boolean) => {
     const currentPatterns = data.patterns || [];
-    const isSelected = currentPatterns.includes(patternId);
+    const newPatterns = checked 
+      ? [...currentPatterns, patternId]
+      : currentPatterns.filter(p => p !== patternId);
     
-    const updatedPatterns = isSelected 
-      ? currentPatterns.filter(id => id !== patternId)
-      : [...currentPatterns, patternId];
-      
-    onUpdate({ patterns: updatedPatterns });
+    onUpdate({ patterns: newPatterns });
+  };
+
+  const handleQuickIssueSelect = (issueId: string) => {
+    setSelectedQuickIssue(selectedQuickIssue === issueId ? '' : issueId);
   };
 
   return (
-    <div className="p-6">
+    <div className="card-glass p-8">
       <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-2">Pattern Recognition</h3>
-        <p className="text-sm text-muted-foreground">
-          Identify any patterns that may be related to this incident. Target completion: 1 minute.
-        </p>
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">🔍 Step 2: Pattern Recognition</h2>
+        <p className="text-gray-600">Target: 1 minute - Identify common patterns and quick issues</p>
       </div>
 
-      <div className="space-y-4">
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="font-medium">Common Patterns to Check</h4>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Selected:</span>
-            <Badge variant="secondary">{(data.patterns || []).length}</Badge>
+      <div className="space-y-8">
+        {/* Common Patterns */}
+        <div>
+          <Label className="text-lg font-medium text-gray-700 mb-4 block">
+            Common Patterns (Check all that apply):
+          </Label>
+          <div className="checkbox-grid">
+            {commonPatterns.map((pattern) => (
+              <div key={pattern.id} className="checkbox-item">
+                <Checkbox
+                  id={pattern.id}
+                  checked={data.patterns?.includes(pattern.id) || false}
+                  onCheckedChange={(checked) => handlePatternChange(pattern.id, checked as boolean)}
+                  className="mr-3"
+                />
+                <Label htmlFor={pattern.id} className="cursor-pointer text-sm">
+                  {pattern.label}
+                </Label>
+              </div>
+            ))}
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {COMMON_PATTERNS.map((pattern) => {
-            const isSelected = (data.patterns || []).includes(pattern.id);
-            return (
-              <Button
-                key={pattern.id}
-                onClick={() => togglePattern(pattern.id)}
-                variant={isSelected ? "default" : "outline"}
+        {/* Quick Actions */}
+        <div>
+          <Label className="text-lg font-medium text-gray-700 mb-4 block">
+            Quick Issue Identification:
+          </Label>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {quickIssues.map((issue) => (
+              <div
+                key={issue.id}
                 className={cn(
-                  "h-auto p-4 text-left justify-start",
-                  isSelected && "bg-primary text-primary-foreground"
+                  'quick-action-btn',
+                  selectedQuickIssue === issue.id && 'selected'
                 )}
+                onClick={() => handleQuickIssueSelect(issue.id)}
               >
-                <div>
-                  <div className="font-medium text-sm mb-1">
-                    {pattern.title}
-                  </div>
-                  <div className={cn(
-                    "text-xs opacity-80",
-                    isSelected ? "text-primary-foreground/80" : "text-muted-foreground"
-                  )}>
-                    {pattern.description}
-                  </div>
-                </div>
-              </Button>
-            );
-          })}
-        </div>
-
-        {(data.patterns || []).length > 0 && (
-          <div className="mt-6 p-4 bg-accent/10 rounded-lg">
-            <h5 className="font-medium mb-2">Selected Patterns</h5>
-            <div className="flex flex-wrap gap-2">
-              {data.patterns?.map((patternId) => {
-                const pattern = COMMON_PATTERNS.find(p => p.id === patternId);
-                return pattern ? (
-                  <Badge key={patternId} variant="secondary">
-                    {pattern.title}
-                  </Badge>
-                ) : null;
-              })}
-            </div>
+                {issue.label}
+              </div>
+            ))}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
