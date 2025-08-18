@@ -8,35 +8,75 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
+    /* Walmart Brand Colors */
+    --walmart-blue: 208 100% 40%;
+    --walmart-gold: 45 100% 56%;
+    --walmart-light-blue: 208 100% 95%;
+    --walmart-dark-blue: 208 100% 25%;
+    
+    /* Timer Status Colors */
+    --timer-green: 142 71% 45%;
+    --timer-yellow: 48 100% 67%;
+    --timer-red: 0 84% 60%;
+    
+    /* Professional Grays */
+    --neutral-50: 210 20% 98%;
+    --neutral-100: 220 14% 96%;
+    --neutral-200: 220 13% 91%;
+    --neutral-300: 216 12% 84%;
+    --neutral-400: 218 11% 65%;
+    --neutral-500: 220 9% 46%;
+    --neutral-600: 215 14% 34%;
+    --neutral-700: 217 19% 27%;
+    --neutral-800: 215 28% 17%;
+    --neutral-900: 222 84% 5%;
+
+    /* Design System */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: var(--neutral-900);
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: var(--neutral-900);
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: var(--neutral-900);
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: var(--walmart-blue);
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: var(--neutral-100);
+    --secondary-foreground: var(--neutral-800);
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: var(--neutral-100);
+    --muted-foreground: var(--neutral-500);
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: var(--walmart-gold);
+    --accent-foreground: var(--neutral-900);
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: var(--timer-red);
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: var(--neutral-200);
+    --input: var(--neutral-200);
+    --ring: var(--walmart-blue);
 
     --radius: 0.5rem;
+
+    /* Custom Design Tokens */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--walmart-dark-blue)));
+    --gradient-timer-green: linear-gradient(135deg, hsl(var(--timer-green)), hsl(142 71% 35%));
+    --gradient-timer-yellow: linear-gradient(135deg, hsl(var(--timer-yellow)), hsl(48 100% 57%));
+    --gradient-timer-red: linear-gradient(135deg, hsl(var(--timer-red)), hsl(0 84% 50%));
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.1);
+    --shadow-timer: 0 0 20px hsl(var(--primary) / 0.3);
+    
+    /* Transitions */
+    --transition-colors: color 150ms ease-in-out, background-color 150ms ease-in-out, border-color 150ms ease-in-out;
+    --transition-smooth: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
 
     --sidebar-background: 0 0% 98%;
 
